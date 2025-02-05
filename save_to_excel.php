@@ -28,7 +28,7 @@ if ($data) {
     // Kirim response dengan link ke file
     echo json_encode([
         'success' => true,
-        'fileUrl' => "http://yourdomain.com/excel/Pengecekan APAR" // Ganti dengan domain Anda
+        'fileUrl' => "http://MalioApar.com/excel/Pengecekan APAR.xlsx" // Ganti dengan domain Anda
     ]);
 } else {
     echo json_encode(['success' => false]);
