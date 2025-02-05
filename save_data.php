@@ -1,5 +1,5 @@
 <?php
-$servername = "malioapar.vercel.app"; // Ganti dengan server Anda jika tidak lokal
+$servername = "https://lyondzin.github.io/Web-cek-APAR/"; // Ganti dengan server Anda jika tidak lokal
 $username = "root"; // Ganti dengan username database Anda
 $password = ""; // Ganti dengan password database Anda
 $dbname = "apar"; // Ganti dengan nama database Anda
