@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APAR Checklist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+    <div id="passwordPrompt" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75">
+        <div class="bg-white p-6 rounded shadow-lg text-center">
+            <h2 class="text-lg font-bold mb-4">Masukkan Password</h2>
+            <input type="password" id="passwordInput" class="border p-2 rounded w-full mb-4" placeholder="Password">
+            <button onclick="checkPassword()" class="bg-blue-500 text-white px-4 py-2 rounded">Submit</button>
+            <p id="errorMsg" class="text-red-500 mt-2 hidden">Password salah!</p>
+        </div>
+    </div>
+
+    <div id="mainContent" class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-lg hidden">
+        <h2 class="text-xl font-bold mb-4">Pengecekan APAR</h2>
+        
+        <form id="checklistForm" enctype="multipart/form-data" class="space-y-4">
+            <!-- Nama Pemeriksa -->
+            <label class="block font-semibold">Nama Pemeriksa:</label>
+            <input type="text" name="inspector" class="w-full border p-2 rounded" required>
+
+            <!-- Tempat Pengecekan -->
+            <label class="block font-semibold">Tempat Pengecekan:</label>
+            <select name="locationType" id="locationType" class="w-full border p-2 rounded" onchange="updateLocationOptions()" required>
+                <option value="">Pilih Tempat Pengecekan</option>
+                <option value="Hotel">Hotel</option>
+                <option value="Club">Club</option>
+            </select>
+
+            <!-- Area Pengecekan -->
+            <div id="areaOptions" class="hidden">
+                <label class="block font-semibold">Area Pengecekan:</label>
+                <select name="area" id="area" class="w-full border p-2 rounded" onchange="updateFloorOptions()" required>
+                    <option value="">Pilih Area</option>
+                </select>
+            </div>
+
+            <!-- Lantai Pengecekan -->
+            <div id="floorOptions" class="hidden">
+                <label class="block font-semibold">Lantai:</label>
+                <select name="floor" id="floor" class="w-full border p-2 rounded" onchange="updateTubeOptions()" required>
+                    <option value="">Pilih Lantai</option>
+                </select>
+            </div>
+
+            <!-- Tabung APAR -->
+            <div id="tubeOptions" class="hidden">
+                <label class="block font-semibold">Tabung APAR:</label>
+                <select name="tube" id="tube" class="w-full border p-2 rounded" required>
+                    <option value="">Pilih Tabung</option>
+                </select>
+            </div>
+
+            <!-- Kondisi APAR -->
+            <div id="conditionOptions" class="hidden">
+                <label class="block font-semibold">Kondisi Selang:</label>
+                <select name="hoseCondition" class="w-full border p-2 rounded" required>
+                    <option value="Baik">Baik</option>
+                    <option value="Buruk">Buruk</option>
+                </select>
+
+                <label class="block font-semibold">Kondisi Handle:</label>
+                <select name="handleCondition" class="w-full border p-2 rounded" required>
+                    <option value="Baik">Baik</option>
+                    <option value="Buruk">Buruk</option>
+                </select>
+
+                <label class="block font-semibold">Kondisi Safety Pin:</label>
+                <select name="safetyPinCondition" class="w-full border p-2 rounded" required>
+                    <option value="Baik">Baik</option>
+                    <option value="Buruk">Buruk</option>
+                </select>
+
+                <label class="block font-semibold">Kondisi Body:</label>
+                <select name="bodyCondition" class="w-full border p-2 rounded" required>
+                    <option value="Baik">Baik</option>
+                    <option value="Buruk">Buruk</option>
+                </select>
+
+                <label class="block font-semibold">Tekanan (Hanya untuk Dry Powder):</label>
+                <input type="text" name="pressure" class="w-full border p-2 rounded">
+
+                <label class="block font-semibold">Keterangan:</label>
+                <textarea name="remarks" class="w-full border p-2 rounded"></textarea>
+            </div>
+
+            <!-- Tanggal Pengecekan -->
+            <label class="block font-semibold">Tanggal Check:</label>
+            <input type="date" name="checkDate" class="w-full border p-2 rounded" required>
+
+            <!-- Upload Foto -->
+            <label class="block font-semibold">Upload Foto (Maks 10):</label>
+            <input type="file" name="photoUpload[]" class="w-full border p-2 rounded" multiple accept="image/*" required>
+
+            <!-- Submit Button -->
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded w-full">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        const hotelFloors = {
+            1: [
+                "VALLET - DRY POWDER 3,5 KG - 13-Jan-26",
+                "DEPAN LIFT TAMU - CO2 3,5 KG - 2-Okt-25",
+                "DEPAN GYM - CO2 3,5 KG - 13-Jan-26",
+                "BAWAH TANGGA SPA - OXYGEN O2 30 Mpa - 2-Apr-25",
+                "AREA CLEAN TOWEL - CO2 3 KG - 13-Jan-26",
+                "DEPAN BAR SPA - CO2 3 KG - 13-Jan-26",
+                "DEPAN LIFT KARYAWAN - OXYGEN O2 30 Mpa - 2-Apr-25",
+                "KORIDOR POS 2 /APAB - CO2 25 KG - 13-Jan-26",
+                "POS 2 - CO2 3 KG - 2-Okt-25",
+                "TANGGA DARURAT/ EXIT - CO2 3,5 KG - 13-Jan-26"
+            ],
+            2: [
+                "DEPAN TOILET LT.2 - DRY POWDER 4,5 KG - 2-Okt-25",
+                "MBAR - CO2 3 KG - 2-Okt-25",
+                "DJ - CO2 3,5 KG - 13-Jan-26",
+                "LOCKER LC - CO2 3,5 KG - 13-Jan-26",
+                "TANGGA KANAN - CO2 3,5 KG - 13-Jan-26",
+                "TANGGA KIRI - CO2 3 KG - 2-Okt-25",
+                "PINTU KOBOI - CO2 3 KG - 2-Okt-25",
+                "TABUNG 1 - DRY POWDER 4,5 KG - 2-Okt-25",
+                "TABUNG 2 - DRY POWDER 4,5 KG - 13-Jan-26",
+                "TABUNG 1 - CO2 25 KG - 13-Jan-26",
+                "TABUNG 2 - CO2 9 KG - 2-Okt-25",
+                "DEPAN PANEL - CO2 3 KG - 2-Okt-25"
+            ],
+            3: [
+                "DEPAN R.326 - DRY POWDER 4,5 KG - 2-Okt-25",
+                "DEPAN R.310 - DRY POWDER 3,5 KG - 2-Okt-25",
+                "DEPAN TOILET - DRY POWDER 4,5 KG - 2-Okt-25",
+                "DEPAN LIFT KARYAWAN - CO2 3 KG - 2-Okt-25"
+            ],
+            4: [
+                "DEPAN R.426 - CO2 3 KG - 2-Okt-25",
+                "DEPAN R.410 - CO2 3,5 KG - 13-Jan-26",
+                "DEPAN R.415 - CO2 3 KG - 13-Jan-26",
+                "DEPAN LIFT KARYAWAN - CO2 3 KG - 13-Jan-26"
+            ],
+            5: [
+                "DEPAN R.526 - CO2 3,5 KG - 2-Okt-25",
+                "DEPAN R.510 - CO2 3,5 KG - 2-Okt-25",
+                "DEPAN R.515 - CO2 3 KG - 13-Jan-26",
+                "DEPAN LIFT KARYAWAN - CO2 3 KG - 13-Jan-26"
+            ],
+            6: [
+                "DEPAN OFFICE GM - CO2 3,5 KG - 13-Jan-26",
+                "DEPAN R.MASTER - CO2 3,5 KG - 13-Jan-26",
+                "DEPAN TOILET - CO2 3,5 KG - 13-Jan-26",
+                "KORIDOR OFFICE - CO2 9 KG - 13-Jan-26",
+                "MEJA OB - CO2 3 KG - 2-Okt-25",
+                "DINNING ROOM - CO2 3 KG - 2-Okt-25",
+                "DEPAN R.ANTIGEN - DRY POWDER 3,5 KG - 13-Jan-26"
+            ],
+            7: [
+                "DEPAN STOCK CONTROL - CO2 3,5 KG - 13-Jan-26",
+                "GUDANG - CO2 3,5 KG - 2-Okt-25",
+                "OFFICE HRD - CO2 3,5 KG - 2-Okt-25",
+                "DEPAN HRD - DRY POWDER 4,5 KG - 2-Okt-25",
+                "LOCKER WANITA - DRY POWDER 3,5 KG - 2-Okt-25",
+                "LOCKER PRIA - DRY POWDER 3,5 KG - 2-Okt-25",
+                "HK OFFICE - CO2 5 KG - 13-Jan-26",
+                "DEPAN HK OFFICE - DRY POWDER 3,5 KG - 2-Okt-25"
+            ],
+            8: [
+                "PINTU KELUAR - DRY POWDER 3,5 KG - 2-Okt-25"
+            ]
+        };
+
+        const clubFloors = {
+            1: [
+                "PINTU MASUK CLUB - CO2 25 KG - 13-Jan-26",
+                "BAR - CO2 3 KG - 2-Okt-25",
+                "DJ - CO2 3,5 KG - 2-Okt-25",
+                "MEJA O8 - DRY POWDER 4,5 KG - 13-Jan-26",
+                "MESS - CO2 3 KG - 2-Okt-25"
+            ],
+            2: [
+                "MEJA INPUT - DRY POWDER 4,5 KG - 13-Jan-26",
+                "DEPAN TOILET - DRY POWDER 3,5 KG - 13-Jan-26",
+                "DALAM BAR - CO2 3,5 KG - 13-Jan-26"
+            ],
+            3: [
+                "DI DALAM AREA JC - DRY POWDER 4,5 KG - 13-Jan-26",
+                "DEPAN ROOM .15 - CO2 3 KG - 2-Okt-25",
+                "DEPAN ROOM .08 - DRY POWDER 4,5 KG - 13-Jan-26",
+                "DEPAN ROOM. 05 - CO2 3,5 KG - 13-Jan-26"
+            ],
+            4: [
+                "DEPAN OFFICE P.MIMING - CO2 3,5 KG - 13-Jan-26"
+            ]
+        };
+
+        function checkPassword() {
+    const password = document.getElementById('passwordInput').value;
+    if (password === 'admin123') { 
+        document.getElementById('passwordPrompt').classList.add('hidden');
+        document.getElementById('mainContent').classList.remove('hidden');
+        document.getElementById('errorMsg').classList.add('hidden'); // Sembunyikan error jika berhasil
+    } else {
+        document.getElementById('errorMsg').classList.remove('hidden');
+    }
+}
+
+function updateLocationOptions() {
+    const locationType = document.getElementById('locationType').value;
+    const areaOptions = document.getElementById('areaOptions');
+    const floorOptions = document.getElementById('floorOptions');
+    const tubeOptions = document.getElementById('tubeOptions');
+    const conditionOptions = document.getElementById('conditionOptions');
+
+    if (locationType) {
+        areaOptions.classList.remove('hidden');
+        floorOptions.classList.add('hidden');
+        tubeOptions.classList.add('hidden');
+        conditionOptions.classList.add('hidden');
+
+        const areaSelect = document.getElementById('area');
+        areaSelect.innerHTML = '<option value="">Pilih Area</option>';
+        if (locationType === 'Hotel') {
+            areaSelect.innerHTML += '<option value="Hotel">Hotel</option>';
+        } else if (locationType === 'Club') {
+            areaSelect.innerHTML += '<option value="Club">Club</option>';
+        }
+    } else {
+        areaOptions.classList.add('hidden');
+        floorOptions.classList.add('hidden');
+        tubeOptions.classList.add('hidden');
+        conditionOptions.classList.add('hidden');
+    }
+}
+
+function updateFloorOptions() {
+    const area = document.getElementById('area').value;
+    const floorOptions = document.getElementById('floorOptions');
+    const tubeOptions = document.getElementById('tubeOptions');
+    const conditionOptions = document.getElementById('conditionOptions');
+
+    if (area) {
+        floorOptions.classList.remove('hidden');
+        tubeOptions.classList.add('hidden');
+        conditionOptions.classList.add('hidden');
+
+        const floorSelect = document.getElementById('floor');
+        floorSelect.innerHTML = '<option value="">Pilih Lantai</option>';
+        const maxFloors = area === 'Hotel' ? 8 : 4;
+        for (let i = 1; i <= maxFloors; i++) {
+            floorSelect.innerHTML += `<option value="${i}">Lantai ${i}</option>`;
+        }
+    } else {
+        floorOptions.classList.add('hidden');
+        tubeOptions.classList.add('hidden');
+        conditionOptions.classList.add('hidden');
+    }
+}
+
+function updateTubeOptions() {
+    const area = document.getElementById('area').value;
+    const floor = document.getElementById('floor').value;
+    const tubeOptions = document.getElementById('tubeOptions');
+    const conditionOptions = document.getElementById('conditionOptions');
+
+    if (area && floor) {
+        tubeOptions.classList.remove('hidden');
+        conditionOptions.classList.add('hidden');
+
+        const tubeSelect = document.getElementById('tube');
+        tubeSelect.innerHTML = '<option value="">Pilih Tabung</option>';
+        const tubes = area === 'Hotel' ? hotelFloors[floor] : clubFloors[floor];
+        tubes.forEach(tube => {
+            tubeSelect.innerHTML += `<option value="${tube}">${tube}</option>`;
+        });
+
+        tubeSelect.addEventListener('change', function() {
+            conditionOptions.classList.toggle('hidden', !this.value);
+        });
+    } else {
+        tubeOptions.classList.add('hidden');
+        conditionOptions.classList.add('hidden');
+    }
+}
+
+document.getElementById('checklistForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+    const data = {};
+    for (let [key, value] of formData.entries()) {
+        data[key] = value;
+    }
+
+    // Kirim data ke server menggunakan fetch
+    fetch('save_to_excel.php', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            alert('Data berhasil disimpan ke Excel!');
+        } else {
+            alert('Terjadi kesalahan saat menyimpan data.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+
+    // Reset form dan kembali ke prompt password
+    this.reset();
+    document.getElementById('mainContent').classList.add('hidden');
+    document.getElementById('passwordPrompt').classList.remove('hidden');
+});
+    </script>
+</body>
+</html>
