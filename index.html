@@ -19,7 +19,7 @@
     <div id="mainContent" class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-lg hidden">
         <h2 class="text-xl font-bold mb-4">Pengecekan APAR</h2>
         
-        <form id="checklistForm" enctype="multipart/form-data" class="space-y-4">
+        <form id="checklistForm" action="save_data.php" method="POST" enctype="multipart/form-data" class="space-y-4">
             <!-- Nama Pemeriksa -->
             <label class="block font-semibold">Nama Pemeriksa:</label>
             <input type="text" name="inspector" class="w-full border p-2 rounded" required>
@@ -101,6 +101,7 @@
             <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded w-full">Submit</button>
         </form>
     </div>
+    
 
     <script>
         const hotelFloors = {
@@ -285,39 +286,14 @@ function updateTubeOptions() {
     }
 }
 
-document.getElementById('checklistForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const formData = new FormData(this);
-    const data = {};
-    for (let [key, value] of formData.entries()) {
-        data[key] = value;
-    }
 
-    // Kirim data ke server menggunakan fetch
-    fetch('save_to_excel.php', {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(result => {
-        if (result.success) {
-            alert('Data berhasil disimpan ke Excel!');
-        } else {
-            alert('Terjadi kesalahan saat menyimpan data.');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
 
+    
     // Reset form dan kembali ke prompt password
     this.reset();
     document.getElementById('mainContent').classList.add('hidden');
     document.getElementById('passwordPrompt').classList.remove('hidden');
-});
+;
     </script>
 </body>
 </html>
