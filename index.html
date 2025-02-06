@@ -19,14 +19,14 @@
     <div id="mainContent" class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-lg hidden">
         <h2 class="text-xl font-bold mb-4">Pengecekan APAR</h2>
         
-        <form id="checklistForm" action="save_data.php" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <form  action="https://sheetdb.io/api/v1/hjsem9ajzgie5" method="POST" id="sheetdb-form" class="space-y-4">
             <!-- Nama Pemeriksa -->
             <label class="block font-semibold">Nama Pemeriksa:</label>
-            <input type="text" name="inspector" class="w-full border p-2 rounded" required>
+            <input type="text" name="data[inspector]" class="w-full border p-2 rounded" required>
 
             <!-- Tempat Pengecekan -->
             <label class="block font-semibold">Tempat Pengecekan:</label>
-            <select name="locationType" id="locationType" class="w-full border p-2 rounded" onchange="updateLocationOptions()" required>
+            <select name="data[locationType]" id="locationType" class="w-full border p-2 rounded" onchange="updateLocationOptions()" required>
                 <option value="">Pilih Tempat Pengecekan</option>
                 <option value="Hotel">Hotel</option>
                 <option value="Club">Club</option>
@@ -35,7 +35,7 @@
             <!-- Area Pengecekan -->
             <div id="areaOptions" class="hidden">
                 <label class="block font-semibold">Area Pengecekan:</label>
-                <select name="area" id="area" class="w-full border p-2 rounded" onchange="updateFloorOptions()" required>
+                <select name="data[area]" id="area" class="w-full border p-2 rounded" onchange="updateFloorOptions()" required>
                     <option value="">Pilih Area</option>
                 </select>
             </div>
@@ -43,7 +43,7 @@
             <!-- Lantai Pengecekan -->
             <div id="floorOptions" class="hidden">
                 <label class="block font-semibold">Lantai:</label>
-                <select name="floor" id="floor" class="w-full border p-2 rounded" onchange="updateTubeOptions()" required>
+                <select name="data[floor]" id="floor" class="w-full border p-2 rounded" onchange="updateTubeOptions()" required>
                     <option value="">Pilih Lantai</option>
                 </select>
             </div>
@@ -51,7 +51,7 @@
             <!-- Tabung APAR -->
             <div id="tubeOptions" class="hidden">
                 <label class="block font-semibold">Tabung APAR:</label>
-                <select name="tube" id="tube" class="w-full border p-2 rounded" required>
+                <select name="data[tube]" id="tube" class="w-full border p-2 rounded" required>
                     <option value="">Pilih Tabung</option>
                 </select>
             </div>
@@ -59,46 +59,50 @@
             <!-- Kondisi APAR -->
             <div id="conditionOptions" class="hidden">
                 <label class="block font-semibold">Kondisi Selang:</label>
-                <select name="hoseCondition" class="w-full border p-2 rounded" required>
+                <select name="data[hoseCondition]" class="w-full border p-2 rounded" required>
                     <option value="Baik">Baik</option>
                     <option value="Buruk">Buruk</option>
                 </select>
 
                 <label class="block font-semibold">Kondisi Handle:</label>
-                <select name="handleCondition" class="w-full border p-2 rounded" required>
+                <select name="data[handleCondition]" class="w-full border p-2 rounded" required>
                     <option value="Baik">Baik</option>
                     <option value="Buruk">Buruk</option>
                 </select>
 
                 <label class="block font-semibold">Kondisi Safety Pin:</label>
-                <select name="safetyPinCondition" class="w-full border p-2 rounded" required>
+                <select name="data[safetyPinCondition]" class="w-full border p-2 rounded" required>
                     <option value="Baik">Baik</option>
                     <option value="Buruk">Buruk</option>
                 </select>
 
                 <label class="block font-semibold">Kondisi Body:</label>
-                <select name="bodyCondition" class="w-full border p-2 rounded" required>
+                <select name="data[bodyCondition]" class="w-full border p-2 rounded" required>
                     <option value="Baik">Baik</option>
                     <option value="Buruk">Buruk</option>
                 </select>
 
+            
                 <label class="block font-semibold">Tekanan (Hanya untuk Dry Powder):</label>
-                <input type="text" name="pressure" class="w-full border p-2 rounded">
-
+                <select name="data[pressure]" class="w-full border p-2 rounded" >
+                    <option value="Baik">Baik</option>
+                    <option value="Buruk">Buruk</option>
+                </select>
+               
                 <label class="block font-semibold">Keterangan:</label>
-                <textarea name="remarks" class="w-full border p-2 rounded"></textarea>
+                <textarea name="data[remarks]" class="w-full border p-2 rounded"></textarea>
             </div>
 
             <!-- Tanggal Pengecekan -->
             <label class="block font-semibold">Tanggal Check:</label>
-            <input type="date" name="checkDate" class="w-full border p-2 rounded" required>
+            <input type="date" name="data[checkDate]" class="w-full border p-2 rounded" required>
 
             <!-- Upload Foto -->
             <label class="block font-semibold">Upload Foto (Maks 10):</label>
-            <input type="file" name="photoUpload[]" class="w-full border p-2 rounded" multiple accept="image/*" required>
+            <input type="file" name="data[photoUpload[]]" class="w-full border p-2 rounded" multiple accept="image/*" required>
 
             <!-- Submit Button -->
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded w-full">Submit</button>
+            <button type="submit"  class="bg-blue-500 text-white px-4 py-2 rounded w-full">Submit</button>
         </form>
     </div>
     
@@ -294,6 +298,22 @@ function updateTubeOptions() {
     document.getElementById('mainContent').classList.add('hidden');
     document.getElementById('passwordPrompt').classList.remove('hidden');
 ;
+
+    var form = document.getElementById('sheetdb-form');
+    form.addEventListener("submit", e => {
+        e.preventDefault();
+        fetch(form.action, {
+            method: "POST",
+            body: new FormData(document.getElementById("sheetdb-form")),
+        }).then(
+            response => response.json()
+        ).then((html) => {
+            // you can put any JS code here
+            
+        });
+    });
+
+
     </script>
 </body>
 </html>
