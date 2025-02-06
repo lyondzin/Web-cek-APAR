@@ -17,7 +17,7 @@
     </div>
 
     <div id="mainContent" class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-lg hidden">
-        <h2 class="text-xl font-bold mb-4">Pengecekan APAR</h2>
+        <h2 class="text-xl font-bold mb-4">Pengecekan APAR Malioboro</h2>
         
         <form action="https://sheetdb.io/api/v1/hjsem9ajzgie5" method="POST" id="sheetdb-form" class="space-y-4">
             <!-- Nama Pemeriksa -->
@@ -237,6 +237,7 @@
                 conditionOptions.classList.add('hidden');
             }
         }
+       
 
         function updateFloorOptions() {
             const area = document.getElementById('area').value;
@@ -289,22 +290,38 @@
         }
 
         document.getElementById('sheetdb-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            fetch(this.action, {
-                method: "POST",
-                body: new FormData(this),
-            }).then(response => response.json())
-            .then((data) => {
-                alert("Data berhasil dikirim!");  // Tampilkan alert sukses
-                this.reset(); // Reset form setelah sukses
-                document.getElementById('mainContent').classList.add('hidden');
-                document.getElementById('passwordPrompt').classList.remove('hidden');
-            })
-            .catch(error => {
-                console.error("Terjadi kesalahan:", error);
-                alert("Gagal mengirim data, coba lagi!");
-            });
-        });
+    e.preventDefault();
+    
+    // Membuat FormData dari form
+    const formData = new FormData(this);
+    
+    // Menambahkan data tanggal dan gambar ke FormData
+    const checkDate = document.querySelector('input[name="data[checkDate]"]').value;
+    const photoUpload = document.querySelector('input[name="data[photoUpload]"]').files;
+
+    // Jika ada gambar yang diunggah, tambahkan ke FormData
+    if (photoUpload.length > 0) {
+        for (let i = 0; i < photoUpload.length; i++) {
+            formData.append('data[photoUpload][]', photoUpload[i]); // Menggunakan [] untuk mengirim beberapa file
+        }
+    }
+
+    // Mengirim data ke SheetDB
+    fetch(this.action, {
+        method: "POST",
+        body: formData,
+    }).then(response => response.json())
+    .then((data) => {
+        alert("Data berhasil dikirim!");  // Tampilkan alert sukses
+        this.reset(); // Reset form setelah sukses
+        document.getElementById('mainContent').classList.add('hidden');
+        document.getElementById('passwordPrompt').classList.remove('hidden');
+    })
+    .catch(error => {
+        console.error("Terjadi kesalahan:", error);
+        alert("Gagal mengirim data, coba lagi!");
+    });
+});
     </script>
 </body>
 </html>
